@@ -5,6 +5,7 @@ from unittest.signals import registerResult
 
 from autograder_utils.JSONTestResult import JSONTestResult
 from autograder_utils.ResultBuilders import gradescopeResultBuilder
+from autograder_utils.ResultFinalizers import gradescopeResultFinalizer
 
 
 class JSONTestRunner(object):
@@ -15,7 +16,7 @@ class JSONTestRunner(object):
     def __init__(self, stream=sys.stdout, descriptions=True, verbosity=1,
                  failfast=False, buffer=True, visibility=None,
                  stdout_visibility=None, post_processor=None,
-                 failure_prefix="Test Failed: ", result_builder=gradescopeResultBuilder):
+                 failure_prefix="Test Failed: ", result_builder=gradescopeResultBuilder, result_finalizer=gradescopeResultFinalizer):
         """
         Set buffer to True to include test output in JSON
 
@@ -42,7 +43,8 @@ class JSONTestRunner(object):
         if stdout_visibility:
             self.json_data["stdout_visibility"] = stdout_visibility
         self.failure_prefix = failure_prefix
-        self.result_builder = gradescopeResultBuilder
+        self.result_builder = result_builder
+        self.result_finalizer = result_finalizer
 
     def _makeResult(self):
         return self.resultclass(self.stream, self.descriptions, self.verbosity,
@@ -70,10 +72,7 @@ class JSONTestRunner(object):
 
         self.json_data["execution_time"] = format(timeTaken, "0.2f")
 
-        total_score = 0
-        for test in self.json_data["tests"]:
-            total_score += test.get("score", 0.0)
-        self.json_data["score"] = total_score
+        self.result_finalizer(self.json_data)
 
         if self.post_processor is not None:
             self.post_processor(self.json_data)
