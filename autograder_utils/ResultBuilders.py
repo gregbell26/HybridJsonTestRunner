@@ -9,9 +9,16 @@ def formatErrors(failure_prefix, output, err):
 
     return output
 
+def encodeHTML(data_to_encode):
+    lines = data_to_encode.splitlines(keepends=False)
+
+    output = [f"<p>{line}</p>" for line in lines]
+
+    return "\n".join(output)
+
 
 def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score,
-                            output):
+                            output, image_data):
     failed = err is not None
 
     if err:
@@ -44,15 +51,16 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
     if number:
         result["number"] = number
 
-    # GS autograder can also support images
-    # write HTML img tag with B64 encoded image data
-    # see https://github.com/gradescope/autograder_samples/discussions/108 for an example
+    if image_data:
+        output = encodeHTML(output)
+
+        output += f"\n<figure><img src='data:image/{image_data['image_type']};base64,{image_data['data']}'/><figcaption>{image_data['label']}</figcaption></figure>"
 
     return result
 
 
 def prairieLearnResultBuilder(name, failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score,
-                              output):
+                              output, image_data):
     failed = err is not None
     if err:
         if hide_errors_message:
@@ -86,5 +94,11 @@ def prairieLearnResultBuilder(name, failure_prefix, err, hide_errors_message, we
 
     # url: The source of the image, typically formatted as standard HTML base64 image like "data:[mimetype];base64,[contents]";
     # label: An optional label for the image (defaults to "Figure").
+
+    if image_data:
+        result["images"] = {
+            "label": image_data["label"],
+            "url": f"data:image/{image_data['image_type']};base64,{image_data['data']}"
+        }
 
     return result

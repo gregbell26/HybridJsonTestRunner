@@ -1,3 +1,5 @@
+import base64
+import os.path
 from functools import wraps
 
 
@@ -118,6 +120,47 @@ class Leaderboard(object):
             return func(*args, **kwargs)
 
         return wrapper
+
+
+class ImageResult:
+    """
+    Decorator that allows the setting of image data to be rendered in the test results
+
+    Usage: @ImageResult
+
+    Then, within the test, make sure the final two parameters are ``encode_image_data`` and ``set_image_data``.
+
+    ``encode_image_data`` takes an *absolute* path to the image to load and returns the base-64 encoded version of that image.
+
+    ``set_image_data`` takes the label for the image, the actual data for the image, and the image type (default is png) and sets it within the result for further processing
+    """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, func):
+        def encode_image_data(path_to_image):
+            if not os.path.exists(path_to_image):
+                return None
+
+            with open(path_to_image, "wb") as wb:
+                image_encoded_bytes = base64.b64encode(wb.read())
+
+            return image_encoded_bytes.decode("utf-8")
+
+        def set_image_data(label, data, image_type="png"):
+            wrapper.__image_data__ = {
+                'label': label,
+                'data': data,
+                'image_type': image_type,
+            }
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            mut_args = list(*args)
+            mut_args.extend([encode_image_data, set_image_data])
+
+            return func(*tuple(mut_args), **kwargs)
 
 
 class PartialCredit(object):

@@ -89,6 +89,16 @@ class JSONTestResult(result.TestResult):
         value = getattr(testMethodName, '__leaderboard_value__', None)
         return column_name, sort_order, value
 
+
+    def getImageData(self, test):
+        testMethodName = self.getTestMethodName(test)
+
+        if not testMethodName:
+            return None
+
+        image_data = getattr(testMethodName, "__image_data", None)
+        return image_data
+
     def startTest(self, test):
         super(JSONTestResult, self).startTest(test)
 
@@ -112,8 +122,9 @@ class JSONTestResult(result.TestResult):
         score = self.getScore(test)
         output = self.getOutput() or ""
         name = self.getDescription(test)
+        image_data = self.getImageData(test)
 
-        self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output)
+        self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output, image_data)
 
     def buildLeaderboardEntry(self, test):
         name, sort_order, value = self.getLeaderboardData(test)
