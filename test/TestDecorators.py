@@ -85,6 +85,15 @@ class TestDecorators(unittest.TestCase):
 
         self.assertDictEqual({"label": "test_plot", "data": data, "image_type": "png"}, dataAttr)
 
+    @ImageResult()
+    def testVerifyImageResultFileDNE(self, load_data, set_data):
+        self.assertIsNotNone(load_data)
+        self.assertIsNotNone(set_data)
+
+        data = load_data("dne.png")
+
+        self.assertIsNone(data)
+
     @PartialCredit(100)
     def testVerifyPartialCredit(self, set_score=None):
         expected = 10
