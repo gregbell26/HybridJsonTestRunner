@@ -143,8 +143,8 @@ class ImageResult:
             if not os.path.exists(path_to_image):
                 return None
 
-            with open(path_to_image, "wb") as wb:
-                image_encoded_bytes = base64.b64encode(wb.read())
+            with open(path_to_image, "rb") as rb:
+                image_encoded_bytes = base64.b64encode(rb.read())
 
             return image_encoded_bytes.decode("utf-8")
 
@@ -157,10 +157,12 @@ class ImageResult:
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            mut_args = list(*args)
+            mut_args = list(*args) if len(args) != 1 else [args[0]]
             mut_args.extend([encode_image_data, set_image_data])
 
             return func(*tuple(mut_args), **kwargs)
+
+        return wrapper
 
 
 class PartialCredit(object):

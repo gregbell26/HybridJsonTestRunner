@@ -1,2 +1,15 @@
+[build-system]
+    requires = ["setuptools>=61.0"]
+    build-backend = "setuptools.build_meta"
+
+[tools.setuptools.packages.find]
+    include=["autograder_utils*"]
+    exclude=["test*"]
+
 [project]
-    version = "0.0.1"
+    name = "HybridJSONTestRunner"
+    version = "0.6.0"
+    description = "a fork of Gradescope's autograder_utils package that adds support for modern features and PrarieLearn"
+    authors = [{name = "Gregory Bell", email="trihard.studios@outlook.com"}]
+    readme = "README.md"
+    requires-python = ">=3.5"
