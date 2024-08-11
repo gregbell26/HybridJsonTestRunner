@@ -139,12 +139,8 @@ class ImageResult:
         pass
 
     def __call__(self, func):
-        def encode_image_data(path_to_image):
-            if not os.path.exists(path_to_image):
-                return None
-
-            with open(path_to_image, "rb") as rb:
-                image_encoded_bytes = base64.b64encode(rb.read())
+        def encode_image_data(image_bytes):
+            image_encoded_bytes = base64.b64encode(image_bytes)
 
             return image_encoded_bytes.decode("utf-8")
 

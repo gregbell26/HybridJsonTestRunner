@@ -42,6 +42,10 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
 
     result["status"] = "failed" if failed else "passed"
 
+    if image_data:
+        output = encodeHTML(output)
+
+        output += f"\n<figure><img src='data:image/{image_data['image_type']};base64,{image_data['data']}'/><figcaption>{image_data['label']}</figcaption></figure>"
     if tags:
         result["tags"] = tags
     if output:
@@ -50,11 +54,6 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
         result["visibility"] = visibility
     if number:
         result["number"] = number
-
-    if image_data:
-        output = encodeHTML(output)
-
-        output += f"\n<figure><img src='data:image/{image_data['image_type']};base64,{image_data['data']}'/><figcaption>{image_data['label']}</figcaption></figure>"
 
     return result
 
