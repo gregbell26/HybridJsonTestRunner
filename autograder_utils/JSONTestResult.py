@@ -124,7 +124,7 @@ class JSONTestResult(result.TestResult):
         name = self.getDescription(test)
         image_data = self.getImageData(test)
 
-        self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output, image_data)
+        return self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output, image_data)
 
     def buildLeaderboardEntry(self, test):
         name, sort_order, value = self.getLeaderboardData(test)
