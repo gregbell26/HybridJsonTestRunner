@@ -8,7 +8,7 @@
 
 [project]
     name = "HybridJSONTestRunner"
-    version = "0.6.1"
+    version = "0.6.2"
     description = "A fork of Gradescope's autograder_utils package that adds support for modern features and PrairieLearn"
     authors = [{name = "Gregory Bell", email="trihard.studios@outlook.com"}]
     readme = "README.md"

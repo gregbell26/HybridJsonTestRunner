@@ -96,7 +96,7 @@ class JSONTestResult(result.TestResult):
         if not testMethodName:
             return None
 
-        image_data = getattr(testMethodName, "__image_data", None)
+        image_data = getattr(testMethodName, "__image_data__", None)
         return image_data
 
     def startTest(self, test):
