@@ -77,11 +77,12 @@ def prairieLearnResultBuilder(name, failure_prefix, err, hide_errors_message, we
         if score is None:
             score = 0.0 if failed else weight
         result["points"] = score
-        result["points"] = weight
+        result["max_points"] = weight
         # Also mark failure if points are lost
         failed |= score < weight
 
     result["message"] = "Test Failed!" if failed else "Test Succeeded"
+
 
     if output:
         result["output"] = output
