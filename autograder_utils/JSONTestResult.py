@@ -102,7 +102,17 @@ class JSONTestResult(result.TestResult):
     def startTest(self, test):
         super(JSONTestResult, self).startTest(test)
 
-    def getOutput(self):
+    def getOutput(self, test):
+        testMethodName = self.getTestMethodName(test)
+
+        if not testMethodName:
+            return None
+
+        output = getattr(testMethodName, "__output__", None)
+        if output is not None:
+            return output
+
+
         if self.buffer:
             out = self._stdout_buffer.getvalue()
             err = self._stderr_buffer.getvalue()
@@ -112,6 +122,7 @@ class JSONTestResult(result.TestResult):
                 out += err
             return out
 
+
     def buildResult(self, test, err=None):
         failed = err is not None
         weight = self.getWeight(test)
@@ -120,7 +131,7 @@ class JSONTestResult(result.TestResult):
         visibility = self.getVisibility(test)
         hide_errors_message = self.getHideErrors(test)
         score = self.getScore(test)
-        output = self.getOutput() or ""
+        output = self.getOutput(test) or ""
         name = self.getDescription(test)
         image_data = self.getImageData(test)
 

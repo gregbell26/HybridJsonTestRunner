@@ -193,3 +193,25 @@ class PartialCredit(object):
             return func(*args, **kwargs)
 
         return wrapper
+
+class OutputMessage:
+    """
+    Decorator that allows you to set a message
+    """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, func):
+        def set_output(output):
+            wrapper.__output__ = output
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            mut_args = list(*args) if len(args) != 1 else [args[0]]
+            mut_args.append(set_output)
+
+            return func(*tuple(mut_args), **kwargs)
+
+        return wrapper
+
