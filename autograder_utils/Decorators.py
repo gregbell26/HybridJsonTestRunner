@@ -1,7 +1,22 @@
 import base64
-import os.path
-from functools import wraps
+from functools import wraps, update_wrapper
 
+
+class _update_wrapper_after_call(object):
+    """Context manager to update a wrapper function after the wrapped function is called. Thus,
+    if the wrapped function modifies the wrapper state (as in @partial_credit, for example), any
+    changes to the wrapper will be preserved.
+    credit to wrongu for this fix: https://github.com/gradescope/gradescope-utils/pull/39/
+    """
+    def __init__(self, wrapper, func):
+        self.wrapper = wrapper
+        self.func = func
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        update_wrapper(self.wrapper, self.func)
 
 class Weight(object):
     """Simple decorator to add a __weight__ property to a function
@@ -117,7 +132,9 @@ class Leaderboard(object):
         @wraps(func)
         def wrapper(*args, **kwargs):
             kwargs['set_leaderboard_value'] = set_leaderboard_value
-            return func(*args, **kwargs)
+
+            with _update_wrapper_after_call(wrapper, func):
+                return func(*args, **kwargs)
 
         return wrapper
 
@@ -153,10 +170,11 @@ class ImageResult:
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            mut_args = list(*args) if len(args) != 1 else [args[0]]
-            mut_args.extend([encode_image_data, set_image_data])
+            kwargs["encode_image_data"] = encode_image_data
+            kwargs["set_image_data"] = set_image_data
 
-            return func(*tuple(mut_args), **kwargs)
+            with _update_wrapper_after_call(wrapper, func):
+                return func(*args, **kwargs)
 
         return wrapper
 
@@ -190,7 +208,9 @@ class PartialCredit(object):
         @wraps(func)
         def wrapper(*args, **kwargs):
             kwargs['set_score'] = set_score
-            return func(*args, **kwargs)
+
+            with _update_wrapper_after_call(wrapper, func):
+                return func(*args, **kwargs)
 
         return wrapper
 
@@ -208,10 +228,10 @@ class OutputMessage:
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            mut_args = list(*args) if len(args) != 1 else [args[0]]
-            mut_args.append(set_output)
+            kwargs['set_output'] = set_output
 
-            return func(*tuple(mut_args), **kwargs)
+            with _update_wrapper_after_call(wrapper, func):
+                return func(*args, **kwargs)
 
         return wrapper
 

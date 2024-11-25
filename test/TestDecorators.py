@@ -1,9 +1,9 @@
 import unittest
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from autograder_utils.Decorators import Weight, Number, Visibility, HideErrors, Tags, Leaderboard, ImageResult, \
-    PartialCredit
+    PartialCredit, OutputMessage
 
 
 class TestDecorators(unittest.TestCase):
@@ -86,15 +86,18 @@ class TestDecorators(unittest.TestCase):
 
         self.assertDictEqual({"label": "test_plot", "data": data, "image_type": "png"}, dataAttr)
 
-    @ImageResult()
-    @unittest.skip("API change")
-    def testVerifyImageResultFileDNE(self, load_data, set_data):
-        self.assertIsNotNone(load_data)
-        self.assertIsNotNone(set_data)
+    @PartialCredit(100)
+    def testVerifyPartialCredit(self, set_score=None):
+        expected = 10
+        self.assertIsNotNone(set_score)
 
-        data = load_data("dne.png")
+        set_score(expected)
 
-        self.assertIsNone(data)
+        scoreAttr = getattr(self.testVerifyPartialCredit, "__score__", None)
+
+        self.assertIsNotNone(scoreAttr)
+        self.assertEqual(expected, scoreAttr)
+
 
     @PartialCredit(100)
     def testVerifyPartialCredit(self, set_score=None):
@@ -108,4 +111,42 @@ class TestDecorators(unittest.TestCase):
         self.assertIsNotNone(scoreAttr)
         self.assertEqual(expected, scoreAttr)
 
+    @OutputMessage()
+    def testVerifyOutputMessage(self, set_output=None):
+        expected = "huzzah"
+        self.assertIsNotNone(set_output)
+
+        set_output(expected)
+
+        outputAttr = getattr(self.testVerifyOutputMessage, "__output__", None)
+
+        self.assertIsNotNone(outputAttr)
+        self.assertEqual(expected, outputAttr)
+
+    def testVerifyStackedDecorators(self):
+        expectedScore = 10
+        expectedMessage = "Huzzah"
+
+        @PartialCredit(10)
+        @OutputMessage()
+        def runTestMethod(set_score=None, set_output=None):
+            self.assertIsNotNone(set_score)
+            self.assertIsNotNone(set_output)
+
+
+            set_score(expectedScore)
+            set_output(expectedMessage)
+
+        runTestMethod()
+
+        scoreAttr = getattr(runTestMethod, "__score__", None)
+        outputAttr = getattr(runTestMethod, "__output__", None)
+
+
+
+        self.assertIsNotNone(scoreAttr)
+        self.assertIsNotNone(outputAttr)
+
+        self.assertEqual(expectedScore, scoreAttr)
+        self.assertEqual(expectedMessage, outputAttr)
 
