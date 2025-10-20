@@ -1,8 +1,6 @@
 import unittest
 
-# import matplotlib.pyplot as plt
-
-from autograder_utils.Decorators import Weight, Number, Visibility, HideErrors, Tags, Leaderboard, ImageResult, \
+from autograder_utils.Decorators import HTMLFormat, Weight, Number, Visibility, HideErrors, Tags, Leaderboard, ImageResult, \
     PartialCredit, OutputMessage
 
 
@@ -70,34 +68,21 @@ class TestDecorators(unittest.TestCase):
         self.assertEqual(expected, leaderboardAttr)
 
     @ImageResult()
-    @unittest.skip("API change")
-    def testVerifyImageResult(self, load_data, set_data):
-        self.assertIsNotNone(load_data)
-        self.assertIsNotNone(set_data)
+    def testVerifyImageResult(self, encode_image_data, set_image_data):
+        self.assertIsNotNone(encode_image_data)
+        self.assertIsNotNone(set_image_data)
 
-        plt.plot([1, 2, 3], [2, 3, 0])
-        plt.savefig("plot.png")
+        # There really isn't much of a need to test the encode image data
 
-        data = load_data("plot.png")
+        image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD0lEQVR4AQEEAPv/APhl5QSbAkNZHEs8AAAAAElFTkSuQmCC"
+        expectedLabel = "pink_png"
 
-        set_data("test_plot", data)
+        set_image_data(expectedLabel, image)
+
 
         dataAttr = getattr(self.testVerifyImageResult, "__image_data__", None)
 
-        self.assertDictEqual({"label": "test_plot", "data": data, "image_type": "png"}, dataAttr)
-
-    @PartialCredit(100)
-    def testVerifyPartialCredit(self, set_score=None):
-        expected = 10
-        self.assertIsNotNone(set_score)
-
-        set_score(expected)
-
-        scoreAttr = getattr(self.testVerifyPartialCredit, "__score__", None)
-
-        self.assertIsNotNone(scoreAttr)
-        self.assertEqual(expected, scoreAttr)
-
+        self.assertDictEqual({"label": expectedLabel, "data": image, "image_type": "png"}, dataAttr)
 
     @PartialCredit(100)
     def testVerifyPartialCredit(self, set_score=None):
@@ -142,11 +127,19 @@ class TestDecorators(unittest.TestCase):
         scoreAttr = getattr(runTestMethod, "__score__", None)
         outputAttr = getattr(runTestMethod, "__output__", None)
 
-
-
         self.assertIsNotNone(scoreAttr)
         self.assertIsNotNone(outputAttr)
 
         self.assertEqual(expectedScore, scoreAttr)
         self.assertEqual(expectedMessage, outputAttr)
+
+    @HTMLFormat()
+    def testVerifyHTMLOutput(self):
+        dataAttr = getattr(self.testVerifyHTMLOutput, "__output_format__", None)
+
+        self.assertIsNotNone(dataAttr)
+
+        self.assertEqual("html", dataAttr)
+
+
 

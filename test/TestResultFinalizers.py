@@ -1,6 +1,6 @@
 import unittest
 
-from autograder_utils.ResultFinalizers import prairieLearnResultFinalizer
+from autograder_utils.ResultFinalizers import gradescopeResultFinalizer, prairieLearnResultFinalizer
 
 class VerifyPrairieLearnResultFinalizer(unittest.TestCase):
     @staticmethod
@@ -87,4 +87,40 @@ class VerifyPrairieLearnResultFinalizer(unittest.TestCase):
 
         self.assertEqual(results["score"], 1)
         self.assertTrue(results["gradable"])
+
+class VerifyGradescopeResultFinalizer(unittest.TestCase):
+
+    @staticmethod
+    def generateTestResults(maxPoints: float, actualPoints: float, numberOfTestCases: int):
+        tests = []
+
+        for i in range(numberOfTestCases):
+            case = {
+                "name": f"test {i}",
+                "description": "",
+                "max_score": maxPoints,
+                "score": actualPoints,
+            }
+
+            tests.append(case)
+
+        return tests
+
+    def test50Percent(self):
+        results = {
+            "tests": self.generateTestResults(10, 5, 100)
+        }
+
+        gradescopeResultFinalizer(results)
+
+        self.assertEqual(results["score"], 500)
+
+    def test100Percent(self):
+        results = {
+            "tests": self.generateTestResults(10, 10, 100)
+        }
+
+        gradescopeResultFinalizer(results)
+
+        self.assertEqual(results["score"], 1000)
 

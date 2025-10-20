@@ -101,6 +101,16 @@ class JSONTestResult(result.TestResult):
 
     def startTest(self, test):
         super(JSONTestResult, self).startTest(test)
+    
+    def getOutputFormat(self, test):
+        testMethodName = self.getTestMethodName(test)
+
+        if not testMethodName:
+            return None
+
+        outputFormat = getattr(testMethodName, "__output_format__", "text")
+
+        return outputFormat
 
     def getOutput(self, test):
         testMethodName = self.getTestMethodName(test)
@@ -134,8 +144,11 @@ class JSONTestResult(result.TestResult):
         output = self.getOutput(test) or ""
         name = self.getDescription(test)
         image_data = self.getImageData(test)
+        output_format = self.getOutputFormat(test)
 
-        return self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output, image_data)
+        output_format = "html" if image_data else output_format
+
+        return self.build_result(name, self.failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score, output, image_data, output_format)
 
     def buildLeaderboardEntry(self, test):
         name, sort_order, value = self.getLeaderboardData(test)

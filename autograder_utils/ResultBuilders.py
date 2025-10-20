@@ -10,6 +10,8 @@ def formatErrors(failure_prefix, output, err):
     return output
 
 def encodeHTML(data_to_encode):
+    if data_to_encode is None:
+        data_to_encode = ""
     lines = data_to_encode.splitlines(keepends=False)
 
     output = [f"<p>{line}</p>" for line in lines]
@@ -18,7 +20,7 @@ def encodeHTML(data_to_encode):
 
 
 def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score,
-                            output, image_data):
+                            output, image_data, output_format):
     failed = err is not None
 
     if err:
@@ -30,6 +32,10 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
     result = {
         "name": name
     }
+
+    if output_format == "html":
+        output = encodeHTML(output)
+
     if score is not None or weight is not None:
         if weight is None:
             weight = 0.0
@@ -43,7 +49,8 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
     result["status"] = "failed" if failed else "passed"
 
     if image_data:
-        output = encodeHTML(output)
+        if output is None:
+            output = ""
 
         output += f"\n<figure><img src='data:image/{image_data['image_type']};base64,{image_data['data']}'/><figcaption>{image_data['label']}</figcaption></figure>"
     if tags:
@@ -55,11 +62,13 @@ def gradescopeResultBuilder(name, failure_prefix, err, hide_errors_message, weig
     if number:
         result["number"] = number
 
+    result["output_format"] = output_format
+
     return result
 
 
 def prairieLearnResultBuilder(name, failure_prefix, err, hide_errors_message, weight, tags, number, visibility, score,
-                              output, image_data):
+                              output, image_data, output_format):
     failed = err is not None
     if err:
         if hide_errors_message:
@@ -88,12 +97,6 @@ def prairieLearnResultBuilder(name, failure_prefix, err, hide_errors_message, we
         result["output"] = output
     if number:
         result["number"] = number
-
-    # we can actually show and image here
-    # we need to set {images: {label: ..., url: ...}} to a b64 encoded string
-
-    # url: The source of the image, typically formatted as standard HTML base64 image like "data:[mimetype];base64,[contents]";
-    # label: An optional label for the image (defaults to "Figure").
 
     if image_data:
         result["images"] = {

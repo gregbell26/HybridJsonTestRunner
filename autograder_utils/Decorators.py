@@ -1,5 +1,6 @@
 import base64
 from functools import wraps, update_wrapper
+from typing import Any
 
 
 class _update_wrapper_after_call(object):
@@ -139,6 +140,18 @@ class Leaderboard(object):
         return wrapper
 
 
+class HTMLFormat:
+    """
+    Decorator that tells Gradescope to use HTML formatting for the output
+    """
+
+    def __init__(self) -> None:
+        pass
+
+    def __call__(self, func) -> Any:
+        func.__output_format__ = "html"
+        return func
+
 class ImageResult:
     """
     Decorator that allows the setting of image data to be rendered in the test results
@@ -147,7 +160,7 @@ class ImageResult:
 
     Then, within the test, make sure the final two parameters are ``encode_image_data`` and ``set_image_data``.
 
-    ``encode_image_data`` takes an *absolute* path to the image to load and returns the base-64 encoded version of that image.
+    ``encode_image_data`` takes the bytes of an image and returns the utf-8 encoded B64 version.
 
     ``set_image_data`` takes the label for the image, the actual data for the image, and the image type (default is png) and sets it within the result for further processing
     """

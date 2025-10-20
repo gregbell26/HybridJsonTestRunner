@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Build and Deploy
 
 on: 
   push:
@@ -9,7 +9,34 @@ permissions:
   contents: read
 
 jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Run tests
+        run: |
+          python -m unittest test/Test*
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build docker image"
+        run: |
+          docker build --file e2e/Dockerfile . --tag hybrid-json-test-runner:local
+      - name: "Run autograder"
+        run: |
+          docker run --rm -v $(pwd)/results:/autograder/results hybrid-json-test-runner:local
+      - name: "Verify output"
+        run: |
+          python e2e/verify.py "$(pwd)/results/results.json"
+
   deploy:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') }}
+    needs: ["unittest", "e2e"]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
