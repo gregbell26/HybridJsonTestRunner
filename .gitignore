@@ -4,3 +4,4 @@ build
 *.egg-info
 *.png
 __pycache__
+results/
