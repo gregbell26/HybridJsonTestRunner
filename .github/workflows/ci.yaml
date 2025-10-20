@@ -33,7 +33,7 @@ jobs:
           python e2e/verify.py "$(pwd)/results/results.json"
 
   deploy:
-    if: ${{ startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/main') }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs: ["unittest", "e2e"]
     runs-on: ubuntu-latest
     permissions:
